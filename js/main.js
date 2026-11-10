@@ -1,18 +1,23 @@
-// TODO: replace with the real Google Form URL once it's ready.
-const GOOGLE_FORM_URL = "#";
+const WHATSAPP_NUMBER = "5493512299545";
+const WHATSAPP_MESSAGE = {
+  en: "Hi Martín! I'm reaching out from your website — I'd like more info.",
+  es: "¡Hola Martín! Te escribo desde la web, quiero más información."
+};
 
 document.addEventListener("DOMContentLoaded", () => {
-  wireCtaLinks();
   initLanguage();
   initNav();
   initReveal();
-  document.getElementById("year").textContent = new Date().getFullYear();
 });
 
-function wireCtaLinks() {
-  ["ctaHeader", "ctaHero", "ctaContact"].forEach((id) => {
-    const el = document.getElementById(id);
-    if (el) el.href = GOOGLE_FORM_URL;
+function whatsappLink(lang) {
+  const msg = WHATSAPP_MESSAGE[lang] || WHATSAPP_MESSAGE.en;
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+}
+
+function wireCtaLinks(lang) {
+  document.querySelectorAll(".cta-whatsapp").forEach((el) => {
+    el.href = whatsappLink(lang);
   });
 }
 
@@ -49,12 +54,23 @@ function applyLanguage(lang) {
   document.documentElement.lang = lang;
   switchEl.setAttribute("data-active", lang);
   switchEl.setAttribute("aria-label", lang === "en" ? "Switch to Spanish" : "Cambiar a inglés");
+
+  wireCtaLinks(lang);
 }
 
-/* ---------- mobile nav ---------- */
+/* ---------- mobile nav + active link ---------- */
 function initNav() {
   const toggle = document.getElementById("navToggle");
   const nav = document.getElementById("mainNav");
+  const currentPage = document.body.getAttribute("data-page");
+
+  if (currentPage) {
+    nav.querySelectorAll("a[data-page]").forEach((link) => {
+      if (link.getAttribute("data-page") === currentPage) {
+        link.classList.add("is-active");
+      }
+    });
+  }
 
   toggle.addEventListener("click", () => {
     const isOpen = nav.classList.toggle("is-open");
@@ -72,7 +88,7 @@ function initNav() {
 /* ---------- reveal on scroll ---------- */
 function initReveal() {
   const targets = document.querySelectorAll(
-    ".service-card, .about-copy, .about-mark, .music-copy, .video-frame, .contact-inner"
+    ".quicknav-card, .page-copy .copy-wrap, .video-frame, .cta-band .copy-wrap"
   );
   targets.forEach((el) => el.classList.add("reveal"));
 

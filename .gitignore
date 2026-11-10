@@ -2,3 +2,7 @@
 node_modules/
 *.log
 .vscode/
+
+# Raw/source photos — large, unoptimized originals. Only the compressed
+# copies under assets/img/ (generated from these) are committed.
+pictures/
