@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initLanguage();
   initNav();
   initReveal();
-  initStrings();
+  initParallax();
 });
 
 function contactLink(lang) {
@@ -111,116 +111,61 @@ function initReveal() {
   targets.forEach((el) => observer.observe(el));
 }
 
-/* ---------- animated strings (guitar-string motif) ----------
-   On load: each string draws itself in, left to right.
-   On pointer move over the container: the nearest strings bend
-   toward the cursor, like being plucked, and ease back when the
-   pointer leaves. Disabled for prefers-reduced-motion. */
-function initStrings() {
+/* ---------- hero parallax ----------
+   Each hero photo is pre-scaled up (headroom to pan) and fades in
+   once on load, then drifts vertically with scroll position —
+   classic layered-depth parallax. The scale is applied once; the
+   scroll-driven translateY is written directly (no CSS transition),
+   so the pan tracks scroll with zero lag. Disabled for
+   prefers-reduced-motion. */
+function initParallax() {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const banners = Array.from(document.querySelectorAll(".hero-banner"));
+  if (!banners.length) return;
 
-  document.querySelectorAll(".strings-wrap").forEach((wrap) => {
-    const svg = wrap.querySelector(".strings");
-    if (!svg) return;
-    const paths = Array.from(svg.querySelectorAll(".string-line"));
-    const viewBox = svg.viewBox.baseVal;
-    const vbWidth = viewBox.width || 1200;
-    const vbHeight = viewBox.height || 160;
+  const SCALE = 1.12;
 
-    const strings = paths.map((path) => ({
-      el: path,
-      y: parseFloat(path.getAttribute("data-y")),
-      bend: 0,
-      target: 0
-    }));
-
-    const setFlat = (s) => s.el.setAttribute("d", `M0,${s.y} L${vbWidth},${s.y}`);
-
-    if (reduceMotion) {
-      strings.forEach(setFlat);
-      return;
-    }
-
-    // Draw-in on load.
-    strings.forEach((s) => {
-      setFlat(s);
-      const len = vbWidth;
-      s.el.style.strokeDasharray = String(len);
-      s.el.style.strokeDashoffset = String(len);
+  if (reduceMotion) {
+    banners.forEach((banner) => {
+      const img = banner.querySelector("img");
+      if (img) img.classList.add("is-in");
     });
+    return;
+  }
+
+  const items = banners
+    .map((banner) => ({ banner, img: banner.querySelector("img") }))
+    .filter((item) => item.img);
+
+  items.forEach(({ img }) => {
+    img.style.transform = `scale(${SCALE})`;
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        strings.forEach((s, i) => {
-          s.el.style.transition = `stroke-dashoffset 1s cubic-bezier(.22,.8,.3,1) ${i * 0.08}s`;
-          s.el.style.strokeDashoffset = "0";
-        });
-      });
-    });
-    svg.querySelectorAll(".note-dot").forEach((dot, i) => {
-      dot.style.transition = `opacity .5s ease ${0.4 + i * 0.1}s, transform .5s ease ${0.4 + i * 0.1}s`;
-      dot.style.opacity = "0";
-      dot.style.transform = "scale(.4)";
-      dot.style.transformOrigin = "center";
-      dot.style.transformBox = "fill-box";
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          dot.style.opacity = "1";
-          dot.style.transform = "scale(1)";
-        });
-      });
-    });
-
-    // Pointer-driven pluck.
-    let raf = null;
-    let pointerActive = false;
-
-    function toLocal(clientX, clientY) {
-      const rect = svg.getBoundingClientRect();
-      return {
-        x: ((clientX - rect.left) / rect.width) * vbWidth,
-        y: ((clientY - rect.top) / rect.height) * vbHeight
-      };
-    }
-
-    function tick() {
-      let stillMoving = false;
-      strings.forEach((s) => {
-        s.bend += (s.target - s.bend) * 0.2;
-        if (Math.abs(s.target - s.bend) > 0.1) stillMoving = true;
-        const controlX = s._controlX ?? vbWidth / 2;
-        s.el.setAttribute("d", `M0,${s.y} Q${controlX},${s.y + s.bend} ${vbWidth},${s.y}`);
-      });
-      if (stillMoving || pointerActive) {
-        raf = requestAnimationFrame(tick);
-      } else {
-        raf = null;
-      }
-    }
-
-    function startLoop() {
-      if (!raf) raf = requestAnimationFrame(tick);
-    }
-
-    wrap.addEventListener("pointermove", (e) => {
-      pointerActive = true;
-      const { x, y } = toLocal(e.clientX, e.clientY);
-      const maxInfluence = vbHeight / 2.5;
-      strings.forEach((s) => {
-        const dist = Math.abs(y - s.y);
-        const strength = Math.max(0, 1 - dist / maxInfluence);
-        const raw = (s.y - y) * 0.5 * strength;
-        s.target = Math.max(-26, Math.min(26, raw));
-        s._controlX = x;
-      });
-      startLoop();
-    });
-
-    wrap.addEventListener("pointerleave", () => {
-      pointerActive = false;
-      strings.forEach((s) => {
-        s.target = 0;
-      });
-      startLoop();
+      requestAnimationFrame(() => img.classList.add("is-in"));
     });
   });
+
+  let ticking = false;
+
+  function update() {
+    const vh = window.innerHeight;
+    items.forEach(({ banner, img }) => {
+      const rect = banner.getBoundingClientRect();
+      const center = rect.top + rect.height / 2 - vh / 2;
+      const maxOffset = rect.height * ((SCALE - 1) / 2);
+      const offset = Math.max(-maxOffset, Math.min(maxOffset, -center * 0.12));
+      img.style.transform = `scale(${SCALE}) translateY(${offset.toFixed(1)}px)`;
+    });
+    ticking = false;
+  }
+
+  function onScroll() {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(update);
+    }
+  }
+
+  update();
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll);
 }

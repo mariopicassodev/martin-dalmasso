@@ -101,9 +101,9 @@ img, svg{ display: block; max-width: 100%; }
   gap: 20px;
 }
 .brand{ display: flex; flex-direction: column; line-height: 1.1; }
-.brand-name{ font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; color: var(--ink); }
-.brand-name.small{ font-size: 1rem; }
-.brand-tag{ font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; color: var(--olive); }
+.brand-mark{ height: 22px; width: auto; }
+.brand-mark.small{ height: 18px; }
+.brand-tag{ margin-top: 6px; font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; color: var(--olive); }
 
 .main-nav{ display: flex; gap: 22px; font-size: .9rem; font-weight: 500; }
 .main-nav a{ position: relative; padding: 4px 0; color: var(--ink-soft); transition: color .2s var(--ease); }
@@ -204,42 +204,26 @@ img, svg{ display: block; max-width: 100%; }
 .page-copy p{ color: var(--ink-soft); font-size: 1.08rem; }
 .page-copy p.lede{ font-size: 1.2rem; color: var(--ink); }
 
-/* =========================================================
-   Animated strings (guitar-string background motif)
-   Draws itself in on load; bends toward the pointer on hover.
-   See initStrings() in js/main.js.
-   ========================================================= */
-.strings-wrap{ position: relative; }
-.strings-wrap > .section-inner,
-.strings-wrap > .copy-wrap{ position: relative; z-index: 1; }
-.strings{
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  overflow: visible;
-}
-.string-line{
-  fill: none;
-  stroke: var(--line);
-  stroke-width: 1;
-}
-.strings .note-dot{ fill: var(--amber); opacity: .85; }
-@media (prefers-reduced-motion: reduce){
-  .string-line, .strings .note-dot{ transition: none !important; }
-}
+.hero-wordmark{ height: clamp(46px, 8vw, 92px); width: auto; margin: 0 auto; }
+.page-copy.is-centered h1{ display: flex; justify-content: center; }
 
-/* Standalone variant — the SVG *is* the content (e.g. the About-page
-   divider), not a background layer behind other elements. */
-.strings-wrap.is-standalone{
-  width: 100%; max-width: 420px; margin: 8px auto 36px;
+/* =========================================================
+   Hero parallax + reveal
+   The image is pre-scaled up (headroom to pan) and starts
+   transparent; JS fades it in once, then drives translateY
+   continuously from scroll position — no CSS transition on
+   transform, so the pan stays locked to scroll with no lag.
+   See initParallax() in js/main.js.
+   ========================================================= */
+.hero-banner img{
+  will-change: transform;
+  opacity: 0;
+  transition: opacity 1s var(--ease);
 }
-.strings-wrap.is-standalone .strings{
-  position: static;
-  width: 100%; height: 44px;
+.hero-banner img.is-in{ opacity: 1; }
+@media (prefers-reduced-motion: reduce){
+  .hero-banner img{ transition: none; opacity: 1; transform: none !important; }
 }
-.page-copy.is-left .strings-wrap.is-standalone{ margin-left: 0; }
 
 /* =========================================================
    Quick-nav cards (Home → service pages)
@@ -251,7 +235,9 @@ img, svg{ display: block; max-width: 100%; }
   gap: 24px;
 }
 .quicknav-card{
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   background: var(--paper-alt);
   border-radius: var(--radius);
   padding: 32px 26px;
@@ -270,7 +256,7 @@ img, svg{ display: block; max-width: 100%; }
 }
 .quicknav-card h3{ font-size: 1.15rem; color: var(--ink); margin-bottom: 8px; }
 .quicknav-card p{ font-size: .92rem; color: var(--ink-soft); margin: 0 0 14px; }
-.quicknav-card .quicknav-link{ font-size: .85rem; font-weight: 600; color: var(--amber); }
+.quicknav-card .quicknav-link{ margin-top: auto; padding-top: 2px; font-size: .85rem; font-weight: 600; color: var(--amber); }
 
 /* =========================================================
    Video embeds
@@ -301,7 +287,7 @@ img, svg{ display: block; max-width: 100%; }
 /* =========================================================
    About page — first-person pitch
    ========================================================= */
-.pitch{ padding: 8px 0 24px; }
+.pitch{ padding: 28px 0 24px; }
 .pitch .copy-wrap{ max-width: 680px; margin: 0 auto; }
 .pitch blockquote{
   margin: 0 0 1.3em;
@@ -321,7 +307,6 @@ img, svg{ display: block; max-width: 100%; }
   display: flex; flex-wrap: wrap; align-items: center; gap: 20px;
   font-size: .85rem;
 }
-.footer-inner .brand-name{ color: var(--paper); }
 .footer-nav{ display: flex; flex-wrap: wrap; gap: 16px; }
 .footer-nav a:hover{ color: var(--amber); }
 .footer-note{ margin-left: auto; }
