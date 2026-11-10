@@ -1,25 +1,27 @@
 # Martín Dalmasso — portfolio site
 
 ## What this is
-A multi-page portfolio website for **Martín Dalmasso** (Instagram: [@martindalmassom](https://www.instagram.com/martindalmassom/), YouTube: [@martindalmassom](https://www.youtube.com/@martindalmassom)), a jazz/contemporary guitarist. He offers four services, each with its own page: **arrangement**, **sessionist** (session guitar), **music** (original compositions/performances), and **teacher** (harmony & improvisation lessons).
+A multi-page portfolio website for **Martín Dalmasso** (Instagram: [@martindalmassom](https://www.instagram.com/martindalmassom/), YouTube: [@martindalmassom](https://www.youtube.com/@martindalmassom)), a jazz/contemporary guitarist. He offers four services, each with its own page: **arrangement**, **sessionist** (session guitar), **music** (original compositions/performances), and **teacher** (one-to-one lessons).
 
 Live at: **https://mariopicassodev.github.io/martin-dalmasso/** (GitHub Pages, auto-deployed from `main` — see "Deployment" below).
 
 ## Who he is (drives every design decision)
 - Super warm and kind, but his defining trait as a musician is **precision**: meticulous, detail-oriented ("detallista"), clean in appearance, procedural in how he teaches.
 - His playing is complex modern arrangement and solos pursued close to perfection — a niche built on rigor, not just feel.
+- **He's not just a harmony specialist.** Copy must reflect the full range of his musicianship — rhythm, idiomatic phrasing, melody, composition, layers/texture, interpretation — with **"music" as the umbrella term**, not "harmony." Harmony can appear as one item in a list, never as the single word used to describe what he does. (Client correction — see git history; don't regress to harmony-first copy.)
 - Design mandate: warm but exact. Since v2, the design leans on **real photography** to carry the "cool" factor (per client direction, referencing [kurtrosenwinkel.com](https://www.kurtrosenwinkel.com/)'s clean, photo-led, editorial style) rather than color or illustration.
 
 ## Version history (why the site looks like it does)
 - **v1**: single page, no photos yet, dark-navy hero, Google Form CTA. See git history.
-- **v2 (current)**: after a meeting with the client, rebuilt as **separate pages per service** (not one combined "services" section — explicitly requested), real photos dropped in, reference shifted to kurtrosenwinkel.com's clean/minimal look, CTA switched from a Google Form to **WhatsApp**, YouTube videos embedded per page, social icons added.
+- **v2**: after a meeting with the client, rebuilt as **separate pages per service** (not one combined "services" section — explicitly requested), real photos dropped in, reference shifted to kurtrosenwinkel.com's clean/minimal look, CTA switched from a Google Form to **WhatsApp**, YouTube videos embedded per page, social icons added.
+- **v3 (current)**: default language flipped to **Spanish**; CTA relabeled from "WhatsApp" to generic **"Contact"/"Contacto"** (client is wary of spam from a public number but wants to keep WhatsApp as the mechanism for now — a Google Form is the likely future replacement, see "Contact" below); CTA button color changed from amber to near-black per client's dislike of the orange; added the **animated strings motif** (draw-in on load + pointer-plucked bend) as the site's one deliberate animation; broadened all copy away from "harmony" as the single descriptor of Martín's musicianship.
 
 ## Stack decisions
 - **No UI framework, no build step.** Plain HTML/CSS/JS, one `.html` file per page. The user explicitly asked to avoid a framework unless it becomes limiting.
 - **Multi-page, not SPA.** Each page (`index.html`, `about.html`, `services/*.html`) is a standalone HTML file with duplicated header/footer markup (no templating available without a build step). When editing shared chrome (nav, footer, social icons), **update it in all 6 files** — `services/*.html` were generated from `/tmp` scratch script `gen_services.py` originally; there's no live generator in the repo, so edits are manual across files now. Keep nav items and hrefs consistent.
 - All internal links are **relative, no leading slash** (`services/arrangement.html`, `../index.html`, etc.) — required because GitHub Pages serves this as a project site under `/martin-dalmasso/`, not at the domain root. Never use root-relative (`/css/...`) paths.
 - Fonts: Google Fonts `Fraunces` (headings) + `Inter` (body/UI). Loaded via `<link>`.
-- `js/i18n.js` holds the EN/ES dictionary (now much larger — one key set per page). `js/main.js` wires up language switching, mobile nav + active-link highlighting (via `<body data-page="...">`), the WhatsApp CTA links, and scroll reveal.
+- `js/i18n.js` holds the EN/ES dictionary (now much larger — one key set per page). `js/main.js` wires up language switching, mobile nav + active-link highlighting (via `<body data-page="...">`), the contact CTA links, scroll reveal, and the animated strings motif.
 
 ## Structure
 ```
@@ -31,7 +33,7 @@ services/teacher.html      — Teacher / Educación service page (no video)
 services/music.html        — Music service page (+ 2 videos, latest releases)
 css/style.css              — all styles, CSS variables for the palette at the top
 js/i18n.js                 — EN/ES dictionary, keyed by data-i18n attribute values
-js/main.js                 — language switch, nav active-state, WhatsApp CTA builder, scroll reveal
+js/main.js                 — language switch, nav active-state, contact CTA builder, scroll reveal, strings animation
 assets/img/                — compressed, web-ready JPEGs (committed)
 pictures/                  — raw source photos from the client (gitignored — large originals, not for the repo)
 .github/workflows/         — GitHub Actions: deploy to Pages on every push to main
@@ -50,21 +52,36 @@ If new/replacement photos arrive, resize with the same approach (Pillow, `ImageO
 ## Color palette
 Given by the client, kept as CSS variables in `css/style.css`:
 - `--olive:  #615d30`
-- `--amber:  #cc7901` — primary accent (CTA buttons, links, hover states)
+- `--amber:  #cc7901` — accent (links, eyebrow labels, nav hover underline, hover states) — **not** the primary button anymore (see below)
 - `--navy:   #353c56` — base for the footer's dark background
-- `--maroon: #540002` — secondary accent (active nav indicator, "eyebrow" labels on photo pages)
+- `--maroon: #540002` — secondary accent (active nav indicator, button hover state)
 
 **v2 change:** per client direction ("may be the color palette is not accurate for these images, be free to change it — main objective is a very cool look and feel"), the overall site shifted from a dark-navy hero (v1) to a **light, warm-white background** (`--paper: #faf7f1`) with near-black text (`--ink`), letting the real photography carry visual weight — closer to kurtrosenwinkel.com. The four brand colors are kept but used sparingly as accents, not as large fills. Only the footer stays dark navy.
 
+**v3 change:** client disliked the orange primary button. `.btn-primary` (the main CTA pill, used for the header and footer contact buttons) is now `var(--ink)` (near-black) with a `var(--maroon)` hover state — "blackie," per the client's words. Amber is still used for `.eyebrow` labels, nav hover/active underlines, and link-style text (`.quicknav-link`), so the palette isn't gone, just no longer on the loudest element on the page.
+
 ## i18n (English / Spanish)
-- **Default language is English**, switch via a pill toggle in the header (`#langSwitch`), persisted via `localStorage`.
+- **Default language is Spanish** (changed in v3 — was English in v1/v2), switch via a pill toggle in the header (`#langSwitch`), persisted via `localStorage` once a visitor picks one. Default lives in `main.js`: `localStorage.getItem("lang") || "es"`.
 - Every page loads the same `js/i18n.js` dictionary; each page's unique copy has its own key namespace (e.g. `arrangementP1`, `teacherP1`, `musicP1`) so unrelated pages don't share text. Shared keys (`navHome`, `ctaBandTitle`, `footerNote`, etc.) are reused everywhere.
 - `{year}` in `footerNote` is replaced at runtime with the current year.
 - **Keep EN and ES in sync** — never add a `data-i18n` key to only one language object.
+- Note: hardcoded fallback text in the HTML (what shows before JS runs) is still English — a brief flash-of-English is expected for ES visitors on first paint. Not worth "fixing" by writing Spanish into the HTML source; that would just flip the flash for EN visitors instead.
 
-## Contact: WhatsApp (not a form)
-- **v1** used a placeholder Google Form CTA. **v2 replaced this with WhatsApp**, per client direction, number `+54 9 3512 29-9545`.
-- `js/main.js` builds the link at runtime: `https://wa.me/5493512299545?text=<encoded prefilled message>`, with the message text localized (`WHATSAPP_MESSAGE.en` / `.es`). Any element with class `cta-whatsapp` gets its `href` set on language change/init — don't hardcode `href="https://wa.me/..."` directly in HTML, always use `href="#" class="btn ... cta-whatsapp"` and let JS fill it in, so the prefilled text stays localized.
+## Contact: obfuscated WhatsApp link, labeled "Contact" (not a form, not yet)
+- **v1** used a placeholder Google Form CTA. **v2** replaced this with a WhatsApp link, labeled "WhatsApp," number `+54 9 3512 29-9545`.
+- **v3**: client likes using WhatsApp for now but is wary of spam/scam messages from exposing a public number, and would rather the UI say **"Contact"/"Contacto"**, not advertise the channel. The long-term plan may be a Google Form instead — if asked to make that switch, it's a matter of changing what `contactLink()` in `js/main.js` returns and what `.cta-contact` elements do on click; the class name is already channel-agnostic for this reason (don't rename it back to anything WhatsApp-specific).
+- The number is lightly **obfuscated** in source as a base64 string (`WA_B64` in `js/main.js`, decoded via `atob()`) so it doesn't appear as plain text to casual scraping. This is obscurity, not security — anyone who opens devtools can still get it. Don't "fix" this by writing the digits back in plain text.
+- `contactLink(lang)` builds `https://wa.me/<number>?text=<encoded prefilled message>` at runtime, message localized via `WHATSAPP_MESSAGE.en` / `.es`. Any element with class `cta-contact` gets its `href` set on language change/init — don't hardcode a href directly in HTML; always use `href="#" class="btn ... cta-contact"` and let JS fill it in.
+- UI copy never says "WhatsApp" anywhere visible (button label, CTA band text) — only the prefilled message content (seen only after the redirect) mentions reaching out "from the website."
+
+## Animated strings (the one deliberate animation on the site)
+- Client explicitly asked for "minimal animations" and specifically wants the staff-line/string motif from v1 to **move**: draw itself in on page load, and bend like a plucked guitar string when the pointer passes near it.
+- Lives in `initStrings()` in `js/main.js` + the `.strings-wrap` / `.strings` / `.string-line` / `.note-dot` CSS in `style.css`. Markup: an SVG with `<path class="string-line" data-y="…">` elements (flat lines, `data-y` = baseline in viewBox units) plus a few `<circle class="note-dot">`.
+- **On load**: each string's `d` is set to a flat line, then animated in via `stroke-dasharray`/`stroke-dashoffset` (classic SVG draw-in), staggered per line. Dots fade/scale in after.
+- **On pointer move** over the containing `.strings-wrap`: nearby strings bend into a quadratic curve toward the cursor (closer strings bend more, falloff by vertical distance), eased via a `requestAnimationFrame` lerp; on pointer leave, they ease back flat. Bend is intentionally subtle (client wants restraint, not a flashy effect).
+- Respects `prefers-reduced-motion: reduce` — draw-in and pointer reactivity are both skipped; lines just render flat and static.
+- Currently used in two places: the Home page's intro section (full-width background layer behind the hero text — uses the default absolutely-positioned `.strings` behavior) and the About page's divider (`.strings-wrap.is-standalone` modifier — here the SVG **is** the content, not a background layer, so it renders in normal flow at a fixed small size instead of `position: absolute`).
+- If adding this elsewhere, decide whether it's a background layer behind other content (default) or a standalone element (`is-standalone` modifier) and markup accordingly — see `index.html` vs. `about.html` for both patterns.
 
 ## Videos
 - **Arrangement page**: 1 video — `CqlS-xtkEDY`.
@@ -84,6 +101,9 @@ First-person "selling" pitch (15 years of experience → challenges observed →
 - Hosted on **GitHub Pages** from the `mariopicassodev/martin-dalmasso` repo, deployed via a GitHub Actions workflow (`.github/workflows/deploy.yml`) using the official `actions/upload-pages-artifact` + `actions/deploy-pages` actions — **not** the legacy "deploy from a branch" setting.
 - The workflow runs on every push to `main` and redeploys automatically — no manual Pages rebuild needed.
 - Because this is a project site (not a `mariopicassodev.github.io` user-page repo), it's served under `/martin-dalmasso/`. This is exactly why all internal links must stay relative (see Stack decisions above) — an absolute path would break on Pages while looking fine locally.
+
+## Repository protections
+- `main` has GitHub branch protection: force-pushes and branch deletion are blocked, and any push from someone other than the repo owner/admin requires an approved pull request (`enforce_admins: false`, 1 required approving review, stale reviews dismissed on new commits). The owner can still push directly. This was a deliberate ask ("restrict contributions of other users on main") — don't remove or loosen it without being asked.
 
 ## Working conventions for this repo
 - Keep it framework-free unless a real limitation forces otherwise — ask before adding one.

@@ -69,8 +69,8 @@ img, svg{ display: block; max-width: 100%; }
   white-space: nowrap;
 }
 .btn-primary{
-  background: var(--amber);
-  color: #fff;
+  background: var(--ink);
+  color: var(--paper);
 }
 .btn-primary:hover{ background: var(--maroon); transform: translateY(-1px); }
 .btn-ghost{
@@ -204,13 +204,42 @@ img, svg{ display: block; max-width: 100%; }
 .page-copy p{ color: var(--ink-soft); font-size: 1.08rem; }
 .page-copy p.lede{ font-size: 1.2rem; color: var(--ink); }
 
-/* staff-line motif divider (kept from v1 — liked detail) */
-.staff-divider{
-  width: 100%; max-width: 420px; height: 44px; margin: 8px auto 36px;
-  stroke: var(--line); stroke-width: 1;
+/* =========================================================
+   Animated strings (guitar-string background motif)
+   Draws itself in on load; bends toward the pointer on hover.
+   See initStrings() in js/main.js.
+   ========================================================= */
+.strings-wrap{ position: relative; }
+.strings-wrap > .section-inner,
+.strings-wrap > .copy-wrap{ position: relative; z-index: 1; }
+.strings{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: visible;
 }
-.staff-divider .note-dot{ fill: var(--amber); }
-.page-copy.is-left .staff-divider{ margin-left: 0; }
+.string-line{
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.strings .note-dot{ fill: var(--amber); opacity: .85; }
+@media (prefers-reduced-motion: reduce){
+  .string-line, .strings .note-dot{ transition: none !important; }
+}
+
+/* Standalone variant — the SVG *is* the content (e.g. the About-page
+   divider), not a background layer behind other elements. */
+.strings-wrap.is-standalone{
+  width: 100%; max-width: 420px; margin: 8px auto 36px;
+}
+.strings-wrap.is-standalone .strings{
+  position: static;
+  width: 100%; height: 44px;
+}
+.page-copy.is-left .strings-wrap.is-standalone{ margin-left: 0; }
 
 /* =========================================================
    Quick-nav cards (Home → service pages)
